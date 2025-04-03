@@ -4,9 +4,12 @@ import basemod.BaseMod;
 import basemod.interfaces.EditKeywordsSubscriber;
 import basemod.interfaces.EditStringsSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
+import basemod.interfaces.RenderSubscriber;
 import faust.util.GeneralUtils;
 import faust.util.KeywordInfo;
 import faust.util.TextureLoader;
+import faust.ui.CustomResourcePanel;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglFileHandle;
@@ -31,12 +34,14 @@ import java.util.*;
 public class faustmod implements
         EditStringsSubscriber,
         EditKeywordsSubscriber,
-        PostInitializeSubscriber {
+        PostInitializeSubscriber,
+        RenderSubscriber {
     public static ModInfo info;
     public static String modID; //Edit your pom.xml to change this
     static { loadModInfo(); }
     private static final String resourcesFolder = checkResourcesPath();
     public static final Logger logger = LogManager.getLogger(modID); //Used to output to the console.
+    private CustomResourcePanel resourcePanel;
 
     //This is used to prefix the IDs of various objects like cards and relics,
     //to avoid conflicts between different mods using the same name for things.
@@ -64,6 +69,8 @@ public class faustmod implements
         //If you want to set up a config panel, that will be done here.
         //You can find information about this on the BaseMod wiki page "Mod Config and Panel".
         BaseMod.registerModBadge(badgeTexture, info.Name, GeneralUtils.arrToString(info.Authors), info.Description, null);
+        resourcePanel = new CustomResourcePanel();
+        BaseMod.subscribe(this); // Subscribe to rendering
     }
 
     /*----------Localization----------*/
@@ -219,4 +226,11 @@ public class faustmod implements
             throw new RuntimeException("Failed to determine mod info/ID based on initializer.");
         }
     }
+    @Override
+    public void receiveRender(SpriteBatch sb) {
+        if (resourcePanel != null) {
+            resourcePanel.render(sb);
+        }
+    }
+
 }
